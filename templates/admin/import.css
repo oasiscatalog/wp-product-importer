@@ -1,0 +1,365 @@
+/* Tabbed navigation */
+
+#oasis-pi h2 .nav-tab {
+    font-size: 16px;
+    margin-right: 0;
+}
+
+#oasis-pi h2.nav-tab-wrapper {
+    padding-left: 7px;
+}
+
+/* Common */
+
+#oasis-pi .text-align-center {
+    text-align: center;
+}
+
+#oasis-pi .text-align-right {
+    text-align: right;
+}
+
+#oasis-pi .vertical-align-top {
+    vertical-align: top;
+}
+
+#oasis-pi .vertical-align-middle {
+    vertical-align: middle;
+}
+
+#oasis-pi code {
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+}
+
+#oasis-pi .woo_vm_version_table .import_module {
+    background-color: #fff;
+    padding: 0.2em 0 0 0.5em;
+}
+
+#oasis-pi .woo_vm_version_table .status {
+    width: 80px;
+}
+
+/* Overview */
+
+#oasis-pi .overview-left {
+    float: left;
+    width: 73%;
+}
+
+#oasis-pi .overview-right {
+    float: left;
+    width: 24%;
+}
+
+#oasis-pi .overview-right h3 {
+    font-size: 16px;
+}
+
+#oasis-pi .overview-right h3 span {
+    float: right;
+    font-size: 11px;
+    font-weight: normal;
+}
+
+#oasis-pi .overview-right p {
+    font-size: 12px;
+    color: #333;
+    line-height: 1.6em;
+}
+
+#oasis-pi .overview-right ul {
+    font-size: 12px;
+    line-height: 1.2em;
+}
+
+/* Upload */
+
+#oasis-pi #upload-images td form {
+    display: inline;
+}
+
+#oasis-pi #import-products-filters-ftp label {
+    width: 100px;
+    display: inline-block;
+}
+
+#oasis-pi .upload-method-last {
+    margin-bottom: 1em;
+}
+
+#oasis-pi #upload-csv .separator {
+    border-bottom: 1px solid #dfdfdf;
+}
+
+#oasis-pi .woo_vm_version_table .dashicons {
+    color: #666;
+}
+
+#oasis-pi .woo_vm_version_table .status {
+    width: 80px;
+}
+
+/* Options */
+
+#oasis-pi div.woo_pi_page_options table.widefat {
+    margin: 0 0 1em 0;
+}
+
+#oasis-pi table.widefat th.column-row {
+    width: 20%;
+}
+
+#oasis-pi table.widefat th.column-equals {
+    width: 50px;
+}
+
+#oasis-pi div.woo_pi_page_options fieldset {
+    margin-top: 0.5em;
+}
+
+/* Save */
+
+#oasis-pi div#import-progress,
+#oasis-pi div#upload-images,
+#oasis-pi div#finish-import {
+    margin: 1em 0 0 0;
+}
+
+#oasis-pi div#import-progress .inside,
+#oasis-pi div#finish-import .inside {
+    margin: 1em;
+}
+
+#oasis-pi #installation-controls {
+    width: 100%;
+    margin-bottom: 1em;
+}
+
+#oasis-pi #installation-controls label {
+    font-size: 12px;
+}
+
+#oasis-pi #toggle_installation textarea {
+    font: 12px Consolas, Monaco, Courier, monospace;
+    width: 100%;
+    margin: 0.5em 0 0 0;
+}
+
+#oasis-pi img.pi-loading,
+#oasis-pi img.pi-fail,
+#oasis-pi img.pi-success {
+    width: 16px;
+    height: 16px;
+    display: inline;
+    vertical-align: bottom;
+    margin: 0 0 3px 5px;
+}
+
+#oasis-pi div#finish-import .buttons {
+    margin: 1em 0;
+}
+
+#oasis-pi div#finish-import .buttons .button-separator {
+    margin-right: 0.2em;
+}
+
+#oasis-pi div#finish-import .widefat {
+    margin: 0 0 1em 0;
+}
+
+#oasis-pi div#finish-import .widefat td.failed-reason ul {
+    list-style: inside disc;
+    display: table-cell;
+}
+
+/* Support - Donate / Rate */
+
+#oasis-pi .support-donate_rate {
+    display: block;
+    float: right;
+}
+
+#oasis-pi .support-donate_rate p {
+    margin-top: 16px;
+}
+
+#oasis-pi .support-donate_rate .star {
+    vertical-align: bottom;
+    display: inline-block;
+    width: 17px;
+    height: 17px;
+    background: url('images/star.png') no-repeat;
+}
+
+#oasis-pi .support-donate_rate span {
+    display: none;
+}
+
+/* Webkit animation keyframes */
+@-webkit-keyframes animate-stripes {
+    to {
+        background-position: 0 0;
+    }
+
+    from {
+        background-position: 44px 0;
+    }
+}
+
+@-moz-keyframes animate-stripes {
+    to {
+        background-position: 0 0;
+    }
+
+    from {
+        background-position: 36px 0;
+    }
+}
+
+/* Bar which is placed behind the progress */
+.ui-progress-bar {
+    /* Usual setup stuff */
+    position: relative;
+    margin: 1em 0;
+    height: 25px;
+    /* Pad right so we don't cover the borders when fully progressed */
+    padding-right: 2px;
+    /* For browser that don't support gradients, we'll set a blanket background colour */
+    background-color: #abb2bc;
+    /* Rounds the ends, we specify an excessive amount to make sure they are completely rounded */
+    /* Adjust to your liking, and don't forget to adjust to the same amount in .ui-progress */
+    -moz-border-radius: 25px;
+    -webkit-border-radius: 25px;
+    -o-border-radius: 25px;
+    -ms-border-radius: 25px;
+    -khtml-border-radius: 25px;
+    border-radius: 25px;
+    /* Background gradient */
+    background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #949daa), color-stop(100%, #abb2bc));
+    background: -webkit-linear-gradient(#949daa 0%, #abb2bc 100%);
+    background: -moz-linear-gradient(#949daa 0%, #abb2bc 100%);
+    background: -o-linear-gradient(#949daa 0%, #abb2bc 100%);
+    background: -ms-linear-gradient(#949daa 0%, #abb2bc 100%);
+    background: linear-gradient(#949daa 0%, #abb2bc 100%);
+    /* Give it the inset look by adding some shadows and highlights */
+    -moz-box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.5), 0px 1px 0px 0px white;
+    -webkit-box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.5), 0px 1px 0px 0px white;
+    -o-box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.5), 0px 1px 0px 0px white;
+    box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.5), 0px 1px 0px 0px white;
+    /* Alt colours */
+    /* Progress part of the progress bar */
+}
+
+.ui-progress-bar.blue .ui-progress {
+    background-color: #339BB9 !important;
+    border: 1px solid #287a91;
+}
+
+.ui-progress-bar.red .ui-progress {
+    background-color: #C43C35 !important;
+    border: 1px solid #9c302a;
+}
+
+.ui-progress-bar.warning .ui-progress {
+    background-color: #D9B31A !important;
+    border: 1px solid #ab8d15;
+}
+
+.ui-progress-bar.success .ui-progress {
+    background-color: #74D04C !important;
+    border: 1px solid #4c8932;
+    -moz-animation: none;
+    -webkit-animation: none;
+    -o-animation: none;
+    -ms-animation: none;
+    -khtml-animation: none;
+    animation: none;
+    background: -webkit-gradient(linear, left bottom, left top, color-stop(0, rgba(255, 255, 255, 0)), color-stop(1, rgba(255, 255, 255, 0.35))), #74d04c;
+    /* Mozilla (Firefox etc) background stripes */
+    /* Note: Mozilla's support for gradients is more true to the original design, allowing gradients at 30 degrees, as apposed to 45 degress in webkit. */
+    background: -moz-linear-gradient(rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 100%), #74d04c;
+}
+
+.ui-progress-bar.transition .ui-progress {
+    -moz-transition: background-color 0.5s ease-in, border-color 1.5s ease-out, box-shadow 1.5s ease-out;
+    -webkit-transition: background-color 0.5s ease-in, border-color 1.5s ease-out, box-shadow 1.5s ease-out;
+    -o-transition: background-color 0.5s ease-in, border-color 1.5s ease-out, box-shadow 1.5s ease-out;
+    transition: background-color 0.5s ease-in, border-color 1.5s ease-out, box-shadow 1.5s ease-out;
+}
+
+.ui-progress-bar .ui-progress {
+    /* Usual setup stuff */
+    position: relative;
+    display: block;
+    overflow: visible !important;
+    /* Height should be 2px less than .ui-progress-bar so as to not cover borders and give it a look of being inset */
+    height: 23px;
+    /* Rounds the ends, we specify an excessive amount to make sure they are completely rounded */
+    /* Adjust to your liking, and don't forget to adjust to the same amount in .ui-progress-bar */
+    -moz-border-radius: 25px;
+    -webkit-border-radius: 25px;
+    -o-border-radius: 25px;
+    -ms-border-radius: 25px;
+    -khtml-border-radius: 25px;
+    border-radius: 25px;
+    /* Webkit */
+    /* For browser that don't support gradients, we'll set a base background colour */
+    background-color: #74d04c;
+    /* Webkit background stripes and gradient */
+    background: -webkit-gradient(linear, 0 0, 44 44, color-stop(0, rgba(255, 255, 255, 0.17)), color-stop(0.25, rgba(255, 255, 255, 0.17)), color-stop(0.26, rgba(255, 255, 255, 0)), color-stop(0.5, rgba(255, 255, 255, 0)), color-stop(0.51, rgba(255, 255, 255, 0.17)), color-stop(0.75, rgba(255, 255, 255, 0.17)), color-stop(0.76, rgba(255, 255, 255, 0)), color-stop(1, rgba(255, 255, 255, 0))), -webkit-gradient(linear, left bottom, left top, color-stop(0, rgba(255, 255, 255, 0)), color-stop(1, rgba(255, 255, 255, 0.35))), #74d04c;
+    /* Mozilla (Firefox etc) background stripes */
+    /* Note: Mozilla's support for gradients is more true to the original design, allowing gradients at 30 degrees, as apposed to 45 degress in webkit. */
+    background: -moz-repeating-linear-gradient(top left -30deg, rgba(255, 255, 255, 0.17), rgba(255, 255, 255, 0.17) 15px, rgba(255, 255, 255, 0) 15px, rgba(255, 255, 255, 0) 30px), -moz-linear-gradient(rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 100%), #74d04c;
+    -moz-box-shadow: inset 0px 1px 0px 0px rgba(255, 255, 255, 0.4), inset 0px -1px 1px rgba(0, 0, 0, 0.2);
+    -webkit-box-shadow: inset 0px 1px 0px 0px rgba(255, 255, 255, 0.4), inset 0px -1px 1px rgba(0, 0, 0, 0.2);
+    -o-box-shadow: inset 0px 1px 0px 0px rgba(255, 255, 255, 0.4), inset 0px -1px 1px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0px 1px 0px 0px rgba(255, 255, 255, 0.4), inset 0px -1px 1px rgba(0, 0, 0, 0.2);
+    /* Give it a higher contrast outline */
+    border: 1px solid #4c8932;
+    /* Animate */
+    -moz-animation: animate-stripes 2s linear infinite;
+    -webkit-animation: animate-stripes 2s linear infinite;
+    -o-animation: animate-stripes 2s linear infinite;
+    -ms-animation: animate-stripes 2s linear infinite;
+    -khtml-animation: animate-stripes 2s linear infinite;
+    animation: animate-stripes 2s linear infinite;
+    /* Set the background size so the stripes work correctly */
+    -webkit-background-size: 44px 44px;
+    -moz-background-size: 36px 36px;
+    /* Style status label */
+}
+
+.ui-progress-bar .ui-progress span.ui-label {
+    -moz-font-smoothing: antialiased;
+    -webkit-font-smoothing: antialiased;
+    -o-font-smoothing: antialiased;
+    -ms-font-smoothing: antialiased;
+    -khtml-font-smoothing: antialiased;
+    font-smoothing: antialiased;
+    font-size: 13px;
+    position: absolute;
+    right: 0;
+    line-height: 23px;
+    padding-right: 12px;
+    color: rgba(0, 0, 0, 0.6);
+    text-shadow: rgba(255, 255, 255, 0.45) 0 1px 0px;
+    white-space: nowrap;
+}
+
+.ui-progress-bar .ui-progress span.ui-label b {
+    font-weight: bold;
+}
+
+.ui-progress-bar.red .ui-progress span.ui-label {
+    color: #fff;
+    text-shadow: rgba(0, 0, 0, 1) 0 1px 0px;
+}
+
+.ui-progress-bar .ui-progress span.ui-label.outer {
+    text-shadow: rgba(0, 0, 0, 0.45) 0 1px 0px;
+    color: #fff;
+    position: absolute;
+}
