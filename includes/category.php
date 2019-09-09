@@ -7,7 +7,7 @@ function oasis_pi_generate_categories()
 {
     global $import;
 
-    @ini_set('memory_limit', WP_MAX_MEMORY_LIMIT);
+    @ini_set('memory_limit', '2G');
 
     $availableRoots = array(
         2891 => 'Продукция',
@@ -41,7 +41,7 @@ function oasis_pi_generate_categories()
 function oasis_pi_generate_categories_map()
 {
     global $import;
-    @ini_set('memory_limit', WP_MAX_MEMORY_LIMIT);
+    @ini_set('memory_limit', '2G');
 
     $availableRoots = array(
         2891 => 'Продукция',

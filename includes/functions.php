@@ -24,7 +24,7 @@ if (is_admin()) {
             @set_time_limit($timeout);
         }
 
-        @ini_set('memory_limit', WP_MAX_MEMORY_LIMIT);
+        @ini_set('memory_limit', '2G');
 
         // Prevent header sent errors for the import
         @ob_start();
@@ -135,7 +135,7 @@ if (is_admin()) {
             global $import;
 
             if (!ini_get('safe_mode')) {
-                @ini_set('memory_limit', WP_MAX_MEMORY_LIMIT);
+                @ini_set('memory_limit', '2G');
             }
 
             ob_start();
@@ -199,32 +199,35 @@ if (is_admin()) {
 
                     $i = $_POST['i'];
 
-                    $import->productsFile = oasis_pi_get_option('last_product_file');
                     $import->categoriesFile = oasis_pi_get_option('last_category_file');
 
-                    if (file_exists($import->productsFile)) {
-                        $dataProducts = json_decode(file_get_contents($import->productsFile), true);
+                    $import->json_file = oasis_pi_get_option('json_file', false);
+
+                    $rawData = oasis_request($import->json_file, ['fieldset' => 'full', 'offset' => $i, 'limit' => 1]);
+
+                    if ($rawData) {
+                        $stat = oasis_request(str_replace('products', 'stat', $import->json_file), []);
+
 
                         switch ($import->import_method) {
                             case 'new':
-                                $import->rows = count($dataProducts);
+                                $import->rows = $stat['products'];
                                 break;
                             case 'merge':
-                                $import->rows = count($dataProducts);
+                                $import->rows = $stat['products'];
                                 break;
                             case 'update':
                                 $import->rows = oasis_pi_return_product_count();
                                 break;
                         }
 
-                        if (isset($dataProducts[$i])) {
-                            oasis_pi_generate_categories_map();
+                        oasis_pi_generate_categories_map();
 
-                            $product = new stdClass;
-                            $product->data = $dataProducts[$i];
+                        $product = new stdClass;
+                        $product->data = reset($rawData);
 
-                            oasis_pi_create_or_update_product();
-                        }
+                        oasis_pi_create_or_update_product();
+
                     } else {
                         $import->log .= "<br />Обработка продуктов пропущена. Не найден файл.";
                     }
@@ -242,10 +245,8 @@ if (is_admin()) {
                     $import->import_method = (isset($_POST['import_method']) ? $_POST['import_method'] : 'new');
                     $import->advanced_log = (isset($_POST['advanced_log']) ? (int)$_POST['advanced_log'] : 0);
 
-                    @unlink(oasis_pi_get_option('last_product_file'));
                     @unlink(oasis_pi_get_option('last_category_file'));
 
-                    oasis_pi_update_option('last_product_file');
                     oasis_pi_update_option('last_category_file');
 
                     $import->log .= "<br />Очистка временных файлов завершена.";
@@ -384,13 +385,9 @@ function oasis_pi_prepare_data()
     }
 
     unset($rawDataCategories);
-
-    $rawData = oasis_request($import->json_file, array('fieldset' => 'full'));
+    $rawData = oasis_request(str_replace('products', 'stat', $import->json_file), []);
     if ($rawData) {
-        $productFile = tempnam(sys_get_temp_dir(), 'products_');
-        file_put_contents($productFile, json_encode($rawData));
-        oasis_pi_update_option('last_product_file', $productFile);
-        $import->rows = count($rawData);
+        $import->rows = $rawData['products'];
         unset($rawData);
     } else {
         $import->cancel_import = true;
@@ -479,6 +476,8 @@ function oasis_pi_update_option($option = null, $value = null)
  */
 function oasis_request($url, $params = array())
 {
+    @ini_set('memory_limit', '2G');
+
     $data = false;
     try {
 
@@ -488,10 +487,12 @@ function oasis_request($url, $params = array())
         if ($params) {
             $url .= '&' . http_build_query($params);
         }
+
         $dataRes = file_get_contents($url);
         $data = json_decode($dataRes, true);
     } catch (\Exception $e) {
         error_log(sprintf('[Oasis-product-importer] %s', $e->getMessage() . ' Line: ' . $e->getLine()));
+
     }
     return $data;
 }
