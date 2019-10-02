@@ -15,11 +15,24 @@ function oasis_pi_generate_categories()
     );
 
     $data = json_decode(file_get_contents($import->categoriesFile), true);
+
+    $json_file = oasis_pi_get_option('json_file', false);
+    $json_file_params = parse_url($json_file, PHP_URL_QUERY);
+
+    $json_query = [];
+    parse_str($json_file_params, $json_query);
+
+    $allowedCategory = [];
+    if (isset($json_query['category'])) {
+        $allowedCategory = explode(",", $json_query['category']);
+    }
+
+
     if ($data) {
         $categoriesTree = array();
         foreach ($data as $row) {
-            if (isset($availableRoots[$row['root']])) {
-                $categoriesTree[(int)$row['parent_id']][(int)$row['id']] = $row;
+            if (isset($availableRoots[$row['root']]) && in_array((int)$row['id'], $allowedCategory)) {
+                $categoriesTree[(int)$row['id']] = $row;
             }
         }
 
@@ -70,33 +83,30 @@ function oasis_pi_generate_categories_map()
  * @param $parent_id
  * @param int $parent_term_id
  */
-function oasis_pi_recursive_upsert_categories($tree, $parent_id = 0, $parent_term_id = 0)
+function oasis_pi_recursive_upsert_categories($tree)
 {
     global $wpdb, $import;
 
     $term_taxonomy = 'product_cat';
 
-    if (isset($tree[$parent_id])) {
-        foreach ($tree[$parent_id] as $catId => $catData) {
-            $category = htmlspecialchars(trim($catData['name']));
-            $termExists = term_exists($category, $term_taxonomy, $parent_term_id);
+    foreach ($tree as $catId => $catData) {
+        $category = htmlspecialchars(trim($catData['name']));
+        $termExists = term_exists($category, $term_taxonomy, 0);
 
-            if (empty($termExists)) {
-                $term = wp_insert_term(
-                    $category,
-                    $term_taxonomy,
-                    array(
-                        'parent' => $parent_term_id,
-                    )
-                );
-                if (!is_wp_error($term)) {
-                    $next_parent_id = $term['term_id'];
-                    $import->log .= "<br />>>>>>> " . sprintf('Добавлена категория: %s', $category);
-                }
-            } else {
-                $next_parent_id = !empty($termExists['term_id']) ? $termExists['term_id'] : $termExists;
+        if (empty($termExists)) {
+            $term = wp_insert_term(
+                $category,
+                $term_taxonomy,
+                array(
+                    'parent' => 0,
+                )
+            );
+            if (!is_wp_error($term)) {
+                $next_parent_id = $term['term_id'];
+                $import->log .= "<br />>>>>>> " . sprintf('Добавлена категория: %s', $category);
             }
-            oasis_pi_recursive_upsert_categories($tree, $catId, $next_parent_id);
+        } else {
+            $next_parent_id = !empty($termExists['term_id']) ? $termExists['term_id'] : $termExists;
         }
     }
 }
