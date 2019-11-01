@@ -6,4 +6,12 @@
     </h3>
     <p>Импорт товаров в WooCommerce из API oasiscatlog.com.</p>
 
+    <p>Для включения автоматического обновления каталога необходимо в панели управления Хостингом добавить crontab
+        задачу:<br/>
+        <br/>
+
+        <code style="border: dashed 1px #333; border-radius: 4px; padding: 10px 20px;">php <?= OASIS_PI_PATH . 'cron.php'; ?></code>
+
+    </p>
+
 </div>
