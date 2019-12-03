@@ -21,7 +21,7 @@ include_once(OASIS_PI_PATH . 'includes/functions.php');
 try {
     $json_file = oasis_pi_get_option('json_file', false);
 
-    $rawData = oasis_request($json_file, ['fieldset' => 'full']);
+    $rawData = oasis_request($json_file, ['fieldset' => 'full', 'extend' => 'is_visible']);
 
     $import = new stdClass;
     $import->start_time = time();
@@ -42,7 +42,11 @@ try {
             $product->data = $row;
 
             oasis_pi_create_or_update_product();
-            echo '[' . date('c') . '] Обновлен товар с артикулом #' . $row['article'] . PHP_EOL;
+            if ($product->data['is_deleted'] == false) {
+                echo '[' . date('c') . '] Обновлен товар с артикулом #' . $row['article'] . PHP_EOL;
+            } else {
+                echo '[' . date('c') . '] Удален товар с артикулом #' . $row['article'] . PHP_EOL;
+            }
         }
     }
 

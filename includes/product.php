@@ -60,39 +60,44 @@ function oasis_pi_create_or_update_product()
         )
     );
 
-    if (empty($product->exists) && in_array($import->import_method, array('new', 'merge'))) {
-        $product->ID = wp_insert_post($post_data, true);
+    if ($product->data['is_deleted'] == false) {
+        if (empty($product->exists) && in_array($import->import_method, ['new', 'merge'])) {
+            $product->ID = wp_insert_post($post_data, true);
 
-        if (is_wp_error($product->ID) !== true) {
-            $wpdb->update($wpdb->posts, array(
-                'guid' => sprintf('%s/?post_type=%s&p=%d', get_bloginfo('url'), $post_type, $product->ID)
-            ), array('ID' => $product->ID));
+            if (is_wp_error($product->ID) !== true) {
+                $wpdb->update($wpdb->posts, [
+                    'guid' => sprintf('%s/?post_type=%s&p=%d', get_bloginfo('url'), $post_type, $product->ID),
+                ], ['ID' => $product->ID]);
 
-            oasis_pi_create_product_defaults();
-            oasis_pi_create_or_update_product_details();
+                oasis_pi_create_product_defaults();
+                oasis_pi_create_or_update_product_details();
 
-            if (function_exists('wc_delete_product_transients')) {
-                wc_delete_product_transients($product->ID);
+                if (function_exists('wc_delete_product_transients')) {
+                    wc_delete_product_transients($product->ID);
+                }
+                $import->products_added++;
+                $product->imported = true;
+
+                $import->log .= "<br />>>>>>> " . sprintf('Добавлен товар: %s', $post_data['post_title']);
+            } else {
+                $import->products_failed++;
             }
-            $import->products_added++;
-            $product->imported = true;
-
-            $import->log .= "<br />>>>>>> " . sprintf('Добавлен товар: %s', $post_data['post_title']);
         } else {
-            $import->products_failed++;
-        }
-    } else {
-        if (!empty($product->exists) && in_array($import->import_method, array('update', 'merge'))) {
-            $product->ID = $product->exists;
-            $post_data['ID'] = $product->ID;
-            wp_update_post($post_data);
+            if (!empty($product->exists) && in_array($import->import_method, ['update', 'merge'])) {
+                $product->ID = $product->exists;
+                $post_data['ID'] = $product->ID;
+                wp_update_post($post_data);
 
-            oasis_pi_create_or_update_product_details();
+                oasis_pi_create_or_update_product_details();
 
-            $import->log .= "<br />>>>>>> " . sprintf('Товар обновлен: %s', $post_data['post_title']);
-            $import->products_added++;
-            $product->imported = true;
+                $import->log .= "<br />>>>>>> " . sprintf('Товар обновлен: %s', $post_data['post_title']);
+                $import->products_added++;
+                $product->imported = true;
+            }
         }
+    } elseif (!empty($product->exists)) {
+        wp_delete_post($product->exists);
+        $import->log .= "<br />>>>>>> " . sprintf('Товар удален: %s', $post_data['post_title']);
     }
 }
 
