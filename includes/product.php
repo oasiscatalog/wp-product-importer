@@ -60,7 +60,7 @@ function oasis_pi_create_or_update_product()
         )
     );
 
-    if ($product->data['is_deleted'] == false) {
+    if ($product->data['is_deleted'] == false && $product->data['is_visible'] == true) {
         if (empty($product->exists) && in_array($import->import_method, ['new', 'merge'])) {
             $product->ID = wp_insert_post($post_data, true);
 

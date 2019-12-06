@@ -42,7 +42,7 @@ try {
             $product->data = $row;
 
             oasis_pi_create_or_update_product();
-            if ($product->data['is_deleted'] == false) {
+            if ($product->data['is_deleted'] == false && $product->data['is_visible'] == true) {
                 echo '[' . date('c') . '] Обновлен товар с артикулом #' . $row['article'] . PHP_EOL;
             } else {
                 echo '[' . date('c') . '] Удален товар с артикулом #' . $row['article'] . PHP_EOL;
