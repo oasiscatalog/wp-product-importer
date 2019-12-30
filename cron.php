@@ -21,7 +21,34 @@ include_once(OASIS_PI_PATH . 'includes/functions.php');
 try {
     $json_file = oasis_pi_get_option('json_file', false);
 
-    $rawData = oasis_request($json_file, ['fieldset' => 'full', 'extend' => 'is_visible']);
+    $rawData = [];
+
+    global $wpdb;
+    $productSku = [];
+    $results = $wpdb->get_results("SELECT meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = '_sku'", ARRAY_A);
+    foreach ($results as $row) {
+        $productSku[] = $row['meta_value'];
+    }
+
+    $urlParsed = parse_url($json_file);
+    $queryParsed = [];
+    parse_str($urlParsed['query'], $queryParsed);
+
+    foreach (['category', 'articles'] as $f) {
+        if (isset($queryParsed[$f])) {
+            unset($queryParsed[$f]);
+        }
+    }
+    $cleanJson = 'https://api.oasiscatalog.com/v4/products?' . http_build_query($queryParsed);
+
+    if ($productSku) {
+        foreach (array_chunk($productSku, 100) as $chunk) {
+            $rawData = array_merge($rawData, oasis_request($cleanJson,
+                ['fieldset' => 'full', 'extend' => 'is_visible', 'articles' => implode(",", $chunk)]));
+        }
+    }
+
+    $rawData = array_merge($rawData, oasis_request($json_file, ['fieldset' => 'full', 'extend' => 'is_visible']));
 
     $import = new stdClass;
     $import->start_time = time();
