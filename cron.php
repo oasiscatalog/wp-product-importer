@@ -74,6 +74,7 @@ try {
             } else {
                 echo '[' . date('c') . '] Удален товар с артикулом #' . $row['article'] . PHP_EOL;
             }
+            sleep(rand(1, 2));
         }
     }
 
