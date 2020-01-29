@@ -24,6 +24,28 @@
             </div>
         </div>
 
+        <div id="upload-csv" class="postbox">
+            <h3 class="hndle">Обновление товара</h3>
+            <div class="inside">
+
+                <?php if (!empty($_SESSION['import_result'])): ?>
+                    <p style="color: red"><?= $_SESSION['import_result']; ?></p>
+                    <?php unset($_SESSION['import_result']); ?>
+                <?php endif; ?>
+                <div id="import-products-filters-upload" class="upload-method">
+                    <label for="article">
+                        <strong>Укажите артикул</strong>:</label>
+                    <input type="text" class="regular-text code" id="article" name="article"
+                           value="" size="25"/>
+                </div>
+
+                <p class="submit">
+                    <input type="submit" value="Обновить товар" class="button-primary"/>
+                    <input type="reset" value="Сбросить" class="button"/>
+                </p>
+            </div>
+        </div>
+
         <?php do_action('oasis_pi_after_upload'); ?>
     </div>
 
