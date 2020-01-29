@@ -1,4 +1,7 @@
 <?php
+if (!session_id()) {
+    session_start();
+}
 
 include_once(OASIS_PI_PATH . 'includes/product.php');
 include_once(OASIS_PI_PATH . 'includes/category.php');
@@ -6,12 +9,14 @@ include_once(OASIS_PI_PATH . 'includes/category.php');
 if (is_admin()) {
     include_once(OASIS_PI_PATH . 'includes/admin.php');
 
+    $product = null;
+    $import = null;
     /**
      * Инициализация плагина
      */
     function oasis_pi_import_init()
     {
-        global $import, $wpdb, $woocommerce;
+        global $import, $product, $wpdb, $woocommerce;
 
         $wpdb->hide_errors();
 
@@ -49,33 +54,63 @@ if (is_admin()) {
                 $import->timeout = absint(oasis_pi_get_option('timeout', 600));
                 $import->upload_mb = wp_max_upload_size();
 
-                $json_file = $_POST['json_file'];
+                if (!empty($_POST['article'])) {
+                    $json_file = oasis_pi_get_option('json_file', false);
 
-                if (!empty($json_file)) {
-                    if (substr_count($json_file, 'format=json') > 0) {
-                        $items = oasis_request($json_file, array('limit' => 1));
-                        if (!$items) {
+                    $import->import_method = 'merge';
+
+                    $urlParsed = parse_url($json_file);
+                    $queryParsed = [];
+                    parse_str($urlParsed['query'], $queryParsed);
+
+                    foreach (['category', 'articles'] as $f) {
+                        if (isset($queryParsed[$f])) {
+                            unset($queryParsed[$f]);
+                        }
+                    }
+                    $cleanJson = 'https://api.oasiscatalog.com/v4/products?' . http_build_query($queryParsed);
+
+                    $rawData = oasis_request($cleanJson,
+                        ['fieldset' => 'full', 'extend' => 'is_visible', 'articles' => $_POST['article']]);
+
+                    foreach ($rawData as $row) {
+                        $product = new stdClass;
+                        $product->data = $row;
+
+                        oasis_pi_create_or_update_product();
+                    }
+                    $import->errors = ob_get_clean();
+                    $_SESSION['import_result'] = $import->log;
+                    header('Location: /wp-admin/admin.php?page=oasis_pi&tab=import');
+                    die();
+                } else {
+                    $json_file = $_POST['json_file'];
+
+                    if (!empty($json_file)) {
+                        if (substr_count($json_file, 'format=json') > 0) {
+                            $items = oasis_request($json_file, ['limit' => 1]);
+                            if (!$items) {
+                                $import->cancel_import = true;
+                                oasis_pi_admin_notice('Ссылка на выгрузку некорректная или возвращает 0 товаров. Измените ссылку и попробуйте снова',
+                                    'error');
+                            }
+                        } else {
                             $import->cancel_import = true;
-                            oasis_pi_admin_notice('Ссылка на выгрузку некорректная или возвращает 0 товаров. Измените ссылку и попробуйте снова',
-                                'error');
+                            oasis_pi_admin_notice('Необходимо указать ссылку на выгрузку в формате JSON.', 'error');
                         }
                     } else {
                         $import->cancel_import = true;
-                        oasis_pi_admin_notice('Необходимо указать ссылку на выгрузку в формате JSON.', 'error');
+                        oasis_pi_admin_notice('Необходимо указать ссылку на выгрузку из API.', 'error');
                     }
-                } else {
-                    $import->cancel_import = true;
-                    oasis_pi_admin_notice('Необходимо указать ссылку на выгрузку из API.', 'error');
+
+                    oasis_pi_update_option('json_file', $json_file);
+
+                    if ($import->cancel_import) {
+                        continue;
+                    }
+
+                    $import->json_file = $json_file;
                 }
-
-                oasis_pi_update_option('json_file', $json_file);
-
-                if ($import->cancel_import) {
-                    continue;
-                }
-
-                $import->json_file = $json_file;
-
                 break;
 
             // The AJAX import engine
