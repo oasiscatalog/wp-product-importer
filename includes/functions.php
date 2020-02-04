@@ -53,6 +53,7 @@ if (is_admin()) {
                 $import->advanced_log = absint(oasis_pi_get_option('advanced_log', 1));
                 $import->timeout = absint(oasis_pi_get_option('timeout', 600));
                 $import->upload_mb = wp_max_upload_size();
+                $import->force_images = true;
 
                 if (!empty($_POST['article'])) {
                     $json_file = oasis_pi_get_option('json_file', false);

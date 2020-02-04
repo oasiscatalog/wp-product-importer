@@ -233,7 +233,7 @@ function oasis_pi_create_or_update_product_details()
             } else {
                 $filename = $upload_dir['path'] . basename($image['big']);
 
-                if (!file_exists($filename)) {
+                if (!file_exists($filename) || (isset($import->force_images) && $import->force_images == true) || (file_exists($filename) && filesize($filename) < 2048)) {
                     copy($image['big'], $filename);
                 }
 
