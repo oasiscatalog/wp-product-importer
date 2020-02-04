@@ -10,7 +10,7 @@ function oasis_pi_return_product_count()
     $count = 0;
     if ($statuses = wp_count_posts($post_type)) {
         foreach ($statuses as $key => $status) {
-            if (!in_array($key, array('auto-draft'))) {
+            if (!in_array($key, ['auto-draft'])) {
                 $count = $count + $status;
             }
         }
@@ -29,14 +29,14 @@ function oasis_pi_create_or_update_product()
     $post_type = 'product';
 
     $meta_key = '_sku';
-    $args = array(
-        'post_type' => $post_type,
-        'meta_key' => $meta_key,
-        'meta_value' => $product->data['article'],
+    $args = [
+        'post_type'   => $post_type,
+        'meta_key'    => $meta_key,
+        'meta_value'  => $product->data['article'],
         'numberposts' => 1,
         'post_status' => 'any',
-        'fields' => 'ids'
-    );
+        'fields'      => 'ids',
+    ];
     $products = new WP_Query($args);
     if (!empty($products->found_posts)) {
         $product->exists = $products->posts[0];
@@ -44,21 +44,21 @@ function oasis_pi_create_or_update_product()
         $product->exists = false;
     }
 
-    $post_data = array(
-        'post_author' => $user_ID,
-        'post_date' => current_time('mysql'),
-        'post_date_gmt' => current_time('mysql', 1),
-        'post_title' => (!empty($product->data['full_name']) ? $product->data['full_name'] : ''),
-        'post_status' => 'publish',
+    $post_data = [
+        'post_author'    => $user_ID,
+        'post_date'      => current_time('mysql'),
+        'post_date_gmt'  => current_time('mysql', 1),
+        'post_title'     => (!empty($product->data['full_name']) ? $product->data['full_name'] : ''),
+        'post_status'    => 'publish',
         'comment_status' => 'closed',
-        'ping_status' => 'closed',
-        'post_type' => $post_type,
-        'post_content' => (!is_null($product->data['description']) ? $product->data['description'] : ''),
-        'post_excerpt' => '',
-        'tax_input' => array(
-            'product_type' => 'simple'
-        )
-    );
+        'ping_status'    => 'closed',
+        'post_type'      => $post_type,
+        'post_content'   => (!is_null($product->data['description']) ? $product->data['description'] : ''),
+        'post_excerpt'   => '',
+        'tax_input'      => [
+            'product_type' => 'simple',
+        ],
+    ];
 
     if ($product->data['is_deleted'] == false && $product->data['is_visible'] == true) {
         if (empty($product->exists) && in_array($import->import_method, ['new', 'merge'])) {
@@ -108,32 +108,32 @@ function oasis_pi_create_product_defaults()
 {
     global $product;
 
-    $defaults = array(
-        '_regular_price' => 0,
-        '_price' => '',
-        '_sale_price' => '',
+    $defaults = [
+        '_regular_price'         => 0,
+        '_price'                 => '',
+        '_sale_price'            => '',
         '_sale_price_dates_from' => '',
-        '_sale_price_dates_to' => '',
-        '_sku' => '',
-        '_weight' => 0,
-        '_length' => 0,
-        '_width' => 0,
-        '_height' => 0,
-        '_tax_status' => 'taxable',
-        '_tax_class' => '',
-        '_stock_status' => 'instock',
-        '_visibility' => 'visible',
-        '_featured' => 'no',
-        '_downloadable' => 'no',
-        '_virtual' => 'no',
-        '_sold_individually' => '',
-        '_product_attributes' => array(),
-        '_manage_stock' => 'yes',
-        '_backorders' => 'no',
-        '_stock' => '',
-        '_purchase_note' => '',
-        'total_sales' => 0
-    );
+        '_sale_price_dates_to'   => '',
+        '_sku'                   => '',
+        '_weight'                => 0,
+        '_length'                => 0,
+        '_width'                 => 0,
+        '_height'                => 0,
+        '_tax_status'            => 'taxable',
+        '_tax_class'             => '',
+        '_stock_status'          => 'instock',
+        '_visibility'            => 'visible',
+        '_featured'              => 'no',
+        '_downloadable'          => 'no',
+        '_virtual'               => 'no',
+        '_sold_individually'     => '',
+        '_product_attributes'    => [],
+        '_manage_stock'          => 'yes',
+        '_backorders'            => 'no',
+        '_stock'                 => '',
+        '_purchase_note'         => '',
+        'total_sales'            => 0,
+    ];
     if ($defaults = apply_filters('oasis_pi_create_product_defaults', $defaults, $product->ID)) {
         if (OASIS_PI_DEBUG !== true) {
             foreach ($defaults as $key => $default) {
@@ -178,7 +178,7 @@ function oasis_pi_create_or_update_product_details()
     // Insert Category
     $term_taxonomy = 'product_cat';
     if (!empty($import->categories) && !empty($product->data['categories'])) {
-        $linkedTerms = array();
+        $linkedTerms = [];
         foreach ($product->data['categories'] as $category) {
             $linkedTerms[] = $import->categories[$category];
         }
@@ -202,18 +202,18 @@ function oasis_pi_create_or_update_product_details()
     // Insert attributes
     if (!empty($product->data['attributes'])) {
         if (OASIS_PI_DEBUG !== true) {
-            $productAttributes = array();
+            $productAttributes = [];
             foreach ($product->data['attributes'] as $key => $attribute) {
                 $attr = wc_sanitize_taxonomy_name(stripslashes($attribute["name"]));
 
-                $productAttributes[$attr] = array(
-                    'name' => $attribute["name"],
-                    'value' => $attribute["value"] . (!empty($attribute['dim']) ? ' ' . $attribute['dim'] : ''),
-                    'position' => ($key + 1),
-                    'is_visible' => 1,
+                $productAttributes[$attr] = [
+                    'name'         => $attribute["name"],
+                    'value'        => $attribute["value"] . (!empty($attribute['dim']) ? ' ' . $attribute['dim'] : ''),
+                    'position'     => ($key + 1),
+                    'is_visible'   => 1,
                     'is_variation' => 0,
-                    'is_taxonomy' => 0
-                );
+                    'is_taxonomy'  => 0,
+                ];
             }
             update_post_meta($product->ID, '_product_attributes', $productAttributes);
         }
@@ -222,28 +222,43 @@ function oasis_pi_create_or_update_product_details()
     if (!empty($product->data['images'])) {
         $upload_dir = wp_upload_dir();
 
-        $attaches = array();
-        foreach ($product->data['images'] as $image) {
-            if (!isset($image['big'])) {
-                continue;
+        $productObj = new WC_product($product->ID);
+        $attachment_ids = $productObj->get_gallery_image_ids();
+
+        $updatePhoto = false;
+        foreach ($attachment_ids as $attachment_id) {
+            $original = wp_get_attachment_url($attachment_id);
+            $fileData = file_get_contents($original);
+            if (empty($fileData) or substr_count($fileData, '<body') > 0) {
+                $updatePhoto = true;
+                unset($fileData);
+                break;
+            }
+            unset($fileData);
+        }
+        if (empty($attachment_ids) || $updatePhoto) {
+            foreach ($attachment_ids as $attachment_id) {
+                wp_delete_attachment($attachment_id, true);
             }
 
-            if ($attach_id = oasis_pi_file_exists(basename($image['big']))) {
-                $attaches[] = $attach_id;
-            } else {
-                $filename = $upload_dir['path'] . basename($image['big']);
-
-                if (!file_exists($filename) || (isset($import->force_images) && $import->force_images == true) || (file_exists($filename) && filesize($filename) < 2048)) {
-                    copy($image['big'], $filename);
+            $attaches = [];
+            foreach ($product->data['images'] as $image) {
+                if (!isset($image['big'])) {
+                    continue;
                 }
 
-                $attachment = array(
-                    'guid' => $upload_dir['url'] . '/' . basename($filename),
+                $filename = $upload_dir['path'] . basename($image['big']);
+
+                if (!file_exists($filename) || (file_exists($filename) && filesize($filename) < 2000)) {
+                    copy($image['big'], $filename);
+                }
+                $attachment = [
+                    'guid'           => $upload_dir['url'] . '/' . basename($filename),
                     'post_mime_type' => 'image/jpeg',
-                    'post_title' => preg_replace('/\.[^.]+$/', '', basename($filename)),
-                    'post_content' => '',
-                    'post_status' => 'inherit',
-                );
+                    'post_title'     => preg_replace('/\.[^.]+$/', '', basename($filename)),
+                    'post_content'   => '',
+                    'post_status'    => 'inherit',
+                ];
                 $attach_id = wp_insert_attachment($attachment, $filename, $product->ID);
                 $attaches[] = $attach_id;
 
@@ -252,32 +267,15 @@ function oasis_pi_create_or_update_product_details()
                 $attach_data = wp_generate_attachment_metadata($attach_id, $filename);
                 wp_update_attachment_metadata($attach_id, $attach_data);
             }
-        }
-        if ($attaches) {
-            set_post_thumbnail($product->ID, reset($attaches));
-            update_post_meta($product->ID, '_product_image_gallery', implode(',', $attaches));
+
+            if ($attaches) {
+                set_post_thumbnail($product->ID, reset($attaches));
+                update_post_meta($product->ID, '_product_image_gallery', implode(',', $attaches));
+            }
         }
     }
 
     // Allow Plugin/Theme authors to add support for additional Product details
     $product = apply_filters('oasis_pi_create_product_addons', $product, $import);
     $import = apply_filters('oasis_pi_create_product_log_addons', $import, $product);
-}
-
-/**
- * Проверка наличия фотографии
- *
- * @param $filename
- * @return bool|null|string
- */
-function oasis_pi_file_exists($filename)
-{
-    global $wpdb;
-    $query = "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_value LIKE '%$filename' ORDER BY post_id DESC LIMIT 1";
-
-    if ($result = $wpdb->get_var($query)) {
-        return $result;
-    }
-
-    return false;
 }
