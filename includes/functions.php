@@ -239,7 +239,8 @@ if (is_admin()) {
 
                     $import->json_file = oasis_pi_get_option('json_file', false);
 
-                    $rawData = oasis_request($import->json_file, ['fieldset' => 'full', 'offset' => $i, 'limit' => 1]);
+                    $rawData = oasis_request($import->json_file,
+                        ['fieldset' => 'full', 'offset' => $i, 'limit' => 1, 'extend' => 'is_visible']);
 
                     if ($rawData) {
                         $stat = oasis_request(str_replace('products', 'stat', $import->json_file), []);
