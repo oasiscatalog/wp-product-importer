@@ -27,7 +27,7 @@ try {
     $productSku = [];
     $results = $wpdb->get_results("SELECT meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = '_sku'", ARRAY_A);
     foreach ($results as $row) {
-        $productSku[] = $row['meta_value'];
+        $productSku[$row['meta_value']] = $row['meta_value'];
     }
 
     $urlParsed = parse_url($json_file);
