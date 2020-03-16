@@ -68,13 +68,19 @@ try {
     oasis_pi_generate_categories_map();
 
     if ($rawData) {
+        $cnt = 1;
+        $total = count($rawData);
         foreach ($rawData as $row) {
             $product = new stdClass;
             $product->data = $row;
 
             oasis_pi_create_or_update_product();
-            echo '[' . date('c') . '] ' . str_replace('<br />>>>>>> ', '', $import->log) . PHP_EOL;
+            echo '[' . date('c') . '][' . $cnt . ' из ' . $total . '] ' .
+                str_replace('<br />>>>>>> ', '', $import->log) .
+                PHP_EOL;
             $import->log = '';
+
+            $cnt++;
         }
     }
 
