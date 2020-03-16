@@ -106,10 +106,6 @@ if (is_admin()) {
 
                     oasis_pi_update_option('json_file', $json_file);
 
-                    if ($import->cancel_import) {
-                        continue;
-                    }
-
                     $import->json_file = $json_file;
                 }
                 break;
