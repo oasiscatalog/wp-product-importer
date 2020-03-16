@@ -89,14 +89,20 @@ function oasis_pi_create_or_update_product()
                 $post_data['ID'] = $product->ID;
 
                 $existPost = get_post($product->exists);
-                if ($post_data['post_title'] != $existPost->post_title || $post_data['post_content'] != $existPost->post_content) {
-                    wp_update_post($post_data);
+
+                if (strtotime($product->data['updated_at']) > strtotime($existPost->post_modified)) {
+                    if ($post_data['post_title'] != $existPost->post_title || $post_data['post_content'] != $existPost->post_content || $product->data['updated_at'] != $existPost->post_modified) {
+                        wp_update_post($post_data);
+                    }
+
+                    oasis_pi_create_or_update_product_details();
+                    $import->log .= "<br />>>>>>> " . sprintf('Товар обновлен: %s',
+                            $post_data['post_title'] . ' (Арт.' . $product->data['article'] . ')');
+                } else {
+                    $import->log .= "<br />>>>>>> " . sprintf('Нет необходимости обновлять товар: %s',
+                            $post_data['post_title'] . ' (Арт.' . $product->data['article'] . ')');
                 }
 
-                oasis_pi_create_or_update_product_details();
-
-                $import->log .= "<br />>>>>>> " . sprintf('Товар обновлен: %s',
-                        $post_data['post_title'] . ' (Арт.' . $product->data['article'] . ')');
                 $import->products_added++;
                 $product->imported = true;
             }
@@ -243,17 +249,15 @@ function oasis_pi_create_or_update_product_details()
         $attachment_ids = $productObj->get_gallery_image_ids();
         $updatePhoto = false;
 
-        if (isset($import->force_images) && $import->force_images) {
-            foreach ($attachment_ids as $attachment_id) {
-                $original = wp_get_attachment_url($attachment_id);
-                $fileData = file_get_contents($original);
-                if (empty($fileData) or substr_count($fileData, '<body') > 0) {
-                    $updatePhoto = true;
-                    unset($fileData);
-                    break;
-                }
+        foreach ($attachment_ids as $attachment_id) {
+            $original = wp_get_attachment_metadata($attachment_id);
+            $file_path = $upload_dir['basedir'] . '/' . $original['file'];
+            if (empty($file_path)) {
+                $updatePhoto = true;
                 unset($fileData);
+                break;
             }
+            unset($fileData);
         }
 
         if (empty($attachment_ids) || $updatePhoto || count($attachment_ids) != count($product->data['images'])) {

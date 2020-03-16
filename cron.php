@@ -61,7 +61,6 @@ try {
     $import->import_method = 'merge';
     $import->categoriesFile = oasis_pi_get_option('last_category_file');
     $import->json_file = $json_file;
-    $import->force_images = false;
 
     oasis_pi_generate_categories();
 
