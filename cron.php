@@ -46,11 +46,10 @@ try {
             $rawData = array_merge($rawData, oasis_request($cleanJson,
                 ['fieldset' => 'full', 'extend' => 'is_visible', 'articles' => implode(",", $chunk)]));
             echo '[' . date('c') . '] Загружена часть каталога из oasiscatalog.com (часть №' . $k . ')' . PHP_EOL;
-            break;
         }
     }
 
-//    $rawData = array_merge($rawData, oasis_request($json_file, ['fieldset' => 'full', 'extend' => 'is_visible']));
+    $rawData = array_merge($rawData, oasis_request($json_file, ['fieldset' => 'full', 'extend' => 'is_visible']));
 
     echo '[' . date('c') . '] Загружен JSON каталог из oasiscatalog.com (часть №' . $k . ')' . PHP_EOL;
 
