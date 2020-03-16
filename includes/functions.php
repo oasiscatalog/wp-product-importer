@@ -53,9 +53,9 @@ if (is_admin()) {
                 $import->advanced_log = absint(oasis_pi_get_option('advanced_log', 1));
                 $import->timeout = absint(oasis_pi_get_option('timeout', 600));
                 $import->upload_mb = wp_max_upload_size();
-                $import->force_images = true;
 
                 if (!empty($_POST['article'])) {
+                    $import->force_images = true;
                     $json_file = oasis_pi_get_option('json_file', false);
 
                     $import->import_method = 'merge';
@@ -236,7 +236,7 @@ if (is_admin()) {
                     $import->json_file = oasis_pi_get_option('json_file', false);
 
                     $rawData = oasis_request($import->json_file,
-                        ['fieldset' => 'full', 'offset' => $i, 'limit' => 1, 'extend' => 'is_visible']);
+                        ['fieldset' => 'full', 'offset' => $i, 'limit' => 1, 'extend' => 'is_deleted,is_visible']);
 
                     if ($rawData) {
                         $stat = oasis_request(str_replace('products', 'stat', $import->json_file), []);

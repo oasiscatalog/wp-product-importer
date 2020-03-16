@@ -78,7 +78,8 @@ function oasis_pi_create_or_update_product()
                 $import->products_added++;
                 $product->imported = true;
 
-                $import->log .= "<br />>>>>>> " . sprintf('Добавлен товар: %s', $post_data['post_title']);
+                $import->log .= "<br />>>>>>> " . sprintf('Добавлен товар: %s',
+                        $post_data['post_title'] . ' (Арт.' . $product->data['article'] . ')');
             } else {
                 $import->products_failed++;
             }
@@ -86,18 +87,24 @@ function oasis_pi_create_or_update_product()
             if (!empty($product->exists) && in_array($import->import_method, ['update', 'merge'])) {
                 $product->ID = $product->exists;
                 $post_data['ID'] = $product->ID;
-                wp_update_post($post_data);
+
+                $existPost = get_post($product->exists);
+                if ($post_data['post_title'] != $existPost->post_title || $post_data['post_content'] != $existPost->post_content) {
+                    wp_update_post($post_data);
+                }
 
                 oasis_pi_create_or_update_product_details();
 
-                $import->log .= "<br />>>>>>> " . sprintf('Товар обновлен: %s', $post_data['post_title']);
+                $import->log .= "<br />>>>>>> " . sprintf('Товар обновлен: %s',
+                        $post_data['post_title'] . ' (Арт.' . $product->data['article'] . ')');
                 $import->products_added++;
                 $product->imported = true;
             }
         }
     } elseif (!empty($product->exists)) {
         wp_delete_post($product->exists);
-        $import->log .= "<br />>>>>>> " . sprintf('Товар удален: %s', $post_data['post_title']);
+        $import->log .= "<br />>>>>>> " . sprintf('Товар удален: %s',
+                $post_data['post_title'] . ' (Арт.' . $product->data['article'] . ')');
     }
 }
 
@@ -151,17 +158,18 @@ function oasis_pi_create_or_update_product_details()
     global $wpdb, $product, $import, $user_ID;
 
     oasis_pi_upload_directories();
+    $allMetas = get_post_meta($product->ID);
 
     // Insert SKU
     if (!empty($product->data['article'])) {
-        if (OASIS_PI_DEBUG !== true) {
+        if ((!isset($allMetas['_sku']) && !isset($allMetas['_sku'][0])) || $allMetas['_sku'][0] != $product->data['article']) {
             update_post_meta($product->ID, '_sku', $product->data['article']);
         }
     }
 
     // Insert Price
     if (!empty($product->data['price'])) {
-        if (OASIS_PI_DEBUG !== true) {
+        if ((!isset($allMetas['_price']) && !isset($allMetas['_price'][0])) || $allMetas['_price'][0] != $product->data['price']) {
             update_post_meta($product->ID, '_regular_price', $product->data['price']);
             update_post_meta($product->ID, '_price', $product->data['price']);
         }
@@ -169,11 +177,12 @@ function oasis_pi_create_or_update_product_details()
 
     // Insert Sale Price
     if (!empty($product->data['discount_price'])) {
-        if (WOO_PI_DEBUG !== true) {
+        if ((!isset($allMetas['_sale_price']) && !isset($allMetas['_sale_price'][0])) || $allMetas['_sale_price'][0] != $product->data['discount_price']) {
             update_post_meta($product->ID, '_sale_price', $product->data['discount_price']);
             update_post_meta($product->ID, '_price', $product->data['discount_price']);
         }
     }
+
 
     // Insert Category
     $term_taxonomy = 'product_cat';
@@ -183,7 +192,13 @@ function oasis_pi_create_or_update_product_details()
             $linkedTerms[] = $import->categories[$category];
         }
 
-        if (!empty($linkedTerms)) {
+        $existTaxonomy = wp_get_object_terms($product->ID, $term_taxonomy);
+        $existTaxonomyNames = [];
+        foreach ($existTaxonomy as $taxItem) {
+            $existTaxonomyNames[] = $taxItem->name;
+        }
+
+        if (!empty($linkedTerms) && array_diff($existTaxonomyNames, $linkedTerms)) {
             wp_set_object_terms(
                 $product->ID,
                 $linkedTerms,
@@ -194,10 +209,11 @@ function oasis_pi_create_or_update_product_details()
 
     // Insert Quantity
     if (!empty($product->data['total_stock'])) {
-        if (OASIS_PI_DEBUG !== true) {
+        if ((!isset($allMetas['_stock']) && !isset($allMetas['_stock'][0])) || $allMetas['_stock'][0] != $product->data['total_stock']) {
             update_post_meta($product->ID, '_stock', $product->data['total_stock']);
         }
     }
+
 
     // Insert attributes
     if (!empty($product->data['attributes'])) {
@@ -215,28 +231,32 @@ function oasis_pi_create_or_update_product_details()
                     'is_taxonomy'  => 0,
                 ];
             }
-            update_post_meta($product->ID, '_product_attributes', $productAttributes);
+            if ((!isset($allMetas['_product_attributes']) && !isset($allMetas['_product_attributes'][0])) || $allMetas['_product_attributes'][0] != serialize($productAttributes)) {
+                update_post_meta($product->ID, '_product_attributes', $productAttributes);
+            }
         }
     }
 
     if (!empty($product->data['images'])) {
         $upload_dir = wp_upload_dir();
-
         $productObj = new WC_product($product->ID);
         $attachment_ids = $productObj->get_gallery_image_ids();
-
         $updatePhoto = false;
-        foreach ($attachment_ids as $attachment_id) {
-            $original = wp_get_attachment_url($attachment_id);
-            $fileData = file_get_contents($original);
-            if (empty($fileData) or substr_count($fileData, '<body') > 0) {
-                $updatePhoto = true;
+
+        if (isset($import->force_images) && $import->force_images) {
+            foreach ($attachment_ids as $attachment_id) {
+                $original = wp_get_attachment_url($attachment_id);
+                $fileData = file_get_contents($original);
+                if (empty($fileData) or substr_count($fileData, '<body') > 0) {
+                    $updatePhoto = true;
+                    unset($fileData);
+                    break;
+                }
                 unset($fileData);
-                break;
             }
-            unset($fileData);
         }
-        if (empty($attachment_ids) || $updatePhoto) {
+
+        if (empty($attachment_ids) || $updatePhoto || count($attachment_ids) != count($product->data['images'])) {
             foreach ($attachment_ids as $attachment_id) {
                 wp_delete_attachment($attachment_id, true);
             }
@@ -261,7 +281,6 @@ function oasis_pi_create_or_update_product_details()
                 ];
                 $attach_id = wp_insert_attachment($attachment, $filename, $product->ID);
                 $attaches[] = $attach_id;
-
                 require_once ABSPATH . 'wp-admin/includes/image.php';
 
                 $attach_data = wp_generate_attachment_metadata($attach_id, $filename);

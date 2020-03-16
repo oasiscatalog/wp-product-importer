@@ -42,22 +42,27 @@ try {
     $cleanJson = 'https://api.oasiscatalog.com/v4/products?' . http_build_query($queryParsed);
 
     if ($productSku) {
-        foreach (array_chunk($productSku, 100) as $chunk) {
+        foreach (array_chunk($productSku, 100) as $k => $chunk) {
             $rawData = array_merge($rawData, oasis_request($cleanJson,
                 ['fieldset' => 'full', 'extend' => 'is_visible', 'articles' => implode(",", $chunk)]));
+            echo '[' . date('c') . '] Загружена часть каталога из oasiscatalog.com (часть №' . $k . ')' . PHP_EOL;
+            break;
         }
     }
 
-    $rawData = array_merge($rawData, oasis_request($json_file, ['fieldset' => 'full', 'extend' => 'is_visible']));
+//    $rawData = array_merge($rawData, oasis_request($json_file, ['fieldset' => 'full', 'extend' => 'is_visible']));
+
+    echo '[' . date('c') . '] Загружен JSON каталог из oasiscatalog.com (часть №' . $k . ')' . PHP_EOL;
 
     $import = new stdClass;
     $import->start_time = time();
     $import->cancel_import = false;
     $import->failed_import = '';
     $import->log = '';
-    $import->import_method = (isset($_POST['settings']['import_method']) ? $_POST['settings']['import_method'] : 'new');
+    $import->import_method = 'merge';
     $import->categoriesFile = oasis_pi_get_option('last_category_file');
     $import->json_file = $json_file;
+    $import->force_images = false;
 
     oasis_pi_generate_categories();
 
@@ -69,12 +74,8 @@ try {
             $product->data = $row;
 
             oasis_pi_create_or_update_product();
-            if ($product->data['is_deleted'] == false && $product->data['is_visible'] == true) {
-                echo '[' . date('c') . '] Обновлен товар с артикулом #' . $row['article'] . PHP_EOL;
-            } else {
-                echo '[' . date('c') . '] Удален товар с артикулом #' . $row['article'] . PHP_EOL;
-            }
-            sleep(rand(1, 2));
+            echo '[' . date('c') . '] ' . str_replace('<br />>>>>>> ', '', $import->log) . PHP_EOL;
+            $import->log = '';
         }
     }
 
